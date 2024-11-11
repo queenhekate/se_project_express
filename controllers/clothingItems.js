@@ -1,4 +1,9 @@
 const ClothingItem = require("../models/ClothingItems");
+const {
+  BAD_REQUEST_STATUS_CODE,
+  // REQUEST_NOT_FOUND,
+  // DEFAULT_ERROR,
+} = require("../utils/errors");
 
 const createItem = (req, res) => {
   console.log(req);
@@ -12,7 +17,9 @@ const createItem = (req, res) => {
       res.send({ data: item });
     })
     .catch((e) => {
-      res.status(500).send({ messge: "Error from createItem", e });
+      res
+        .status(BAD_REQUEST_STATUS_CODE)
+        .send({ messge: "Error from createItem", e });
     });
 };
 
@@ -20,7 +27,9 @@ const getItems = (req, res) => {
   ClothingItem.find({})
     .then((items) => res.status(200).send(items))
     .catch((e) => {
-      res.status(500).send({ message: "Get Items failed", e });
+      res
+        .status(BAD_REQUEST_STATUS_CODE)
+        .send({ message: "Get Items failed", e });
     });
 };
 
@@ -32,7 +41,9 @@ const updateItem = (req, res) => {
     .orFail()
     .then((item) => res.status(200).send({ data: item }))
     .catch((e) => {
-      res.status(500).send({ message: "Get Items failed", e });
+      res
+        .status(BAD_REQUEST_STATUS_CODE)
+        .send({ message: "Get Items failed", e });
     });
 };
 
@@ -44,8 +55,13 @@ const deleteItem = (req, res) => {
     .orFail()
     .then((item) => res.status(204).send({}))
     .catch((e) => {
-      res.status(500).send({ message: "Delete Item failed", e });
+      res
+        .status(BAD_REQUEST_STATUS_CODE)
+        .send({ message: "Delete Item failed", e });
     });
 };
 
 module.exports = { createItem, getItems, updateItem, deleteItem };
+module.exports.createItem = (req, res) => {
+  console.log(req.user._id); // _id will become accessible
+};
