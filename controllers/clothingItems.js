@@ -1,4 +1,4 @@
-const ClothingItem = require("../models/ClothingItems");
+const ClothingItem = require("../models/clothingItems");
 const {
   BAD_REQUEST_STATUS_CODE,
   // REQUEST_NOT_FOUND,
@@ -61,7 +61,42 @@ const deleteItem = (req, res) => {
     });
 };
 
-module.exports = { createItem, getItems, updateItem, deleteItem };
+const likeItem = (req, res) =>
+  ClothingItem.findByIdAndUpdate(
+    req.params.itemId,
+    { $addToSet: { likes: req.user._id } }, // add _id to the array if it's not there yet
+    { new: true }
+  )
+    .orFail()
+    .then((item) => res.status(204).send({}))
+    .catch((e) => {
+      res
+        .status(BAD_REQUEST_STATUS_CODE)
+        .send({ message: "Like Item failed", e });
+    });
+
+const dislikeItem = (req, res) =>
+  ClothingItem.findByIdAndUpdate(
+    req.params.itemId,
+    { $pull: { likes: req.user._id } }, // remove _id from the array
+    { new: true }
+  )
+    .orFail()
+    .then((item) => res.status(204).send({}))
+    .catch((e) => {
+      res
+        .status(BAD_REQUEST_STATUS_CODE)
+        .send({ message: "Dislike Item failed", e });
+    });
+
+module.exports = {
+  createItem,
+  getItems,
+  updateItem,
+  deleteItem,
+  likeItem,
+  dislikeItem,
+};
 module.exports.createItem = (req, res) => {
   console.log(req.user._id); // _id will become accessible
 };
