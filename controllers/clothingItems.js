@@ -1,8 +1,8 @@
 const ClothingItem = require("../models/clothingItems");
 const {
   BAD_REQUEST_STATUS_CODE,
-  // REQUEST_NOT_FOUND,
-  // DEFAULT_ERROR,
+  REQUEST_NOT_FOUND,
+  DEFAULT_ERROR,
 } = require("../utils/errors");
 
 const createItem = (req, res) => {
@@ -12,6 +12,7 @@ const createItem = (req, res) => {
   const { name, weather, imageURL } = req.body;
 
   ClothingItem.create({ name, weather, imageURL })
+    .orFail()
     .then((item) => {
       console.log(item);
       res.send({ data: item });
@@ -25,6 +26,7 @@ const createItem = (req, res) => {
 
 const getItems = (req, res) => {
   ClothingItem.find({})
+    .orFail()
     .then((items) => res.status(200).send(items))
     .catch((e) => {
       res
@@ -75,7 +77,7 @@ const likeItem = (req, res) =>
         .send({ message: "Like Item failed", e });
     });
 
-const dislikeItem = (req, res) =>
+const unlikeItem = (req, res) =>
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $pull: { likes: req.user._id } }, // remove _id from the array
@@ -95,7 +97,7 @@ module.exports = {
   updateItem,
   deleteItem,
   likeItem,
-  dislikeItem,
+  unlikeItem,
 };
 module.exports.createItem = (req, res) => {
   console.log(req.user._id); // _id will become accessible
