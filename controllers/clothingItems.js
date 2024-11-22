@@ -17,10 +17,8 @@ const createItem = (req, res) => {
       console.log(item);
       res.send({ data: item });
     })
-    .catch((e) => {
-      res
-        .status(BAD_REQUEST_STATUS_CODE)
-        .send({ message: "Error from createItem", e });
+    .catch((err) => {
+      res.status(BAD_REQUEST_STATUS_CODE).send({ message: err.message });
     });
 };
 
@@ -29,9 +27,7 @@ const getItems = (req, res) => {
     .orFail()
     .then((items) => res.status(200).send(items))
     .catch((e) => {
-      res
-        .status(BAD_REQUEST_STATUS_CODE)
-        .send({ message: "Get Items failed", e });
+      res.status(BAD_REQUEST_STATUS_CODE).send({ message: "Get Items failed" });
     });
 };
 
