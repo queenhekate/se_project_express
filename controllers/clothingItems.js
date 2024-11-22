@@ -20,7 +20,7 @@ const createItem = (req, res) => {
     .catch((e) => {
       res
         .status(BAD_REQUEST_STATUS_CODE)
-        .send({ messge: "Error from createItem", e });
+        .send({ message: "Error from createItem", e });
     });
 };
 
