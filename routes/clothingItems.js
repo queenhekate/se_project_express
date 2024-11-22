@@ -24,9 +24,9 @@ router.put("/:itemId", updateItem);
 router.delete("/:itemId", deleteItem);
 
 // Like
-router.put("/:itemId", likeItem);
+router.put("/:itemId/likes", likeItem);
 
 // Unlike
-router.delete("/:itemId", unlikeItem);
+router.delete("/:itemId/likes", unlikeItem);
 
 module.exports = router;
