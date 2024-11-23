@@ -3,7 +3,7 @@ const ClothingItem = require("../models/clothingItem");
 const {
   okCode,
   createdCode,
-  noContentCode,
+  // noContentCode,
   badRequestCode,
   // invalidCredentialsCode,
   forbidden,
@@ -13,8 +13,8 @@ const {
 } = require("../utils/errors");
 
 const createItem = (req, res) => {
-  const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
+  const { name, weather, imageUrl } = req.body;
 
   ClothingItem.create({ name, weather, imageUrl, owner })
     .then((item) => {

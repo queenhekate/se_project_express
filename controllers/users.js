@@ -39,6 +39,7 @@ const createUser = (req, res) => {
       res.status(createdCode).send({
         name: user.name,
         avatar: user.avatar,
+        _id: user._id,
       });
     })
     .catch((err) => {
