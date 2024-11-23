@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
-const user = require("./users");
+const user = require("./user");
 
 const clothingItemsSchema = new mongoose.Schema({
   name: {
@@ -12,13 +12,14 @@ const clothingItemsSchema = new mongoose.Schema({
   weather: {
     type: String,
     required: true,
+    enum: ["hot", "warm", "cold"],
   },
   imageURL: {
     type: String,
     required: true,
     validate: {
       validator: (value) => validator.isURL(value),
-      message: "You must enter a valid URL",
+      message: "Please enter a valid URL",
     },
   },
   owner: {
@@ -28,7 +29,8 @@ const clothingItemsSchema = new mongoose.Schema({
   },
   likes: {
     b: Boolean,
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "user",
     default: [],
     // a list of users who liked the item
     // an ObjectId array with a reference to the user modal

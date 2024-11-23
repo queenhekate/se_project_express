@@ -1,5 +1,21 @@
-const BAD_REQUEST_STATUS_CODE = 400;
-const REQUEST_NOT_FOUND = 404;
-const DEFAULT_ERROR = 500;
+const okCode = 200;
+const createdCode = 201;
+const noContentCode = 204;
+const badRequestCode = 400;
+const invalidCredentialsCode = 401;
+const forbidden = 403;
+const notFoundCode = 404;
+const conflictCode = 409;
+const internalServerError = 500;
 
-module.exports = { BAD_REQUEST_STATUS_CODE, REQUEST_NOT_FOUND, DEFAULT_ERROR };
+module.exports = {
+  okCode,
+  createdCode,
+  noContentCode,
+  badRequestCode,
+  invalidCredentialsCode,
+  forbidden,
+  notFoundCode,
+  conflictCode,
+  internalServerError,
+};

@@ -1,55 +1,82 @@
-const User = require("../models/users");
+const User = require("../models/user");
 const {
-  BAD_REQUEST_STATUS_CODE,
-  REQUEST_NOT_FOUND,
-  DEFAULT_ERROR,
+  okCode,
+  createdCode,
+  noContentCode,
+  badRequestCode,
+  invalidCredentialsCode,
+  forbidden,
+  notFoundCode,
+  conflictCode,
+  internalServerError,
 } = require("../utils/errors");
 
 // GET /users
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.status(200).send(users))
+    .orFail()
+    .then((users) => {
+      res.status(okCode).send(users);
+    })
     .catch((err) => {
       console.error(err);
-      return res.status(DEFAULT_ERROR).send({ message: err.message });
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(notFoundCode).send({ message: err.message });
+      }
+      next(err);
+      return res.status(internalServerError).send({ message: err.message });
     });
 };
 
 // POST /users
 
-const createUser = (req, res) => {
-  const { name, avatar } = req.body;
+const createUser = (req, res, next) => {
+  const { _id, name, avatar } = req.body;
 
-  User.create({ name, avatar })
-    .then((user) => res.status(201).send(user))
+  return User.create({ _id, name, avatar })
+    .then((user) => {
+      res.status(createdCode).send({
+        name: user.name,
+        avatar: user.avatar,
+        id: user._id,
+      });
+    })
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res
-          .status(BAD_REQUEST_STATUS_CODE)
-          .send({ message: err.message });
+        return res.status(badRequestCode).send({ message: err.message });
       }
-      return res.status(DEFAULT_ERROR).send({ message: err.message });
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(notFoundCode).send({ message: err.message });
+      }
+      next(err);
+      return res.status(internalServerError).send({ message: err.message });
     });
 };
 
-const getUser = (req, res) => {
+const getUser = (req, res, next) => {
   const { userId } = req.params;
   User.findById(userId)
-    .orFail()
-    .then((user) => res.status(200).send(user))
+    .orFail(() => {
+      const error = new Error("User ID not found");
+      error.name = "DocumentNotFoundError";
+      throw error;
+    })
+    .then((user) => {
+      const { avatar, name } = user;
+      res.status(okCode).send({ avatar, name });
+    })
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res.status(REQUEST_NOT_FOUND).send({ message: err.message });
+        return res.status(notFoundCode).send({ message: err.message });
       }
       if (err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_STATUS_CODE)
-          .send({ message: err.message });
+        return res.status(badRequestCode).send({ message: err.message });
       }
-      return res.status(DEFAULT_ERROR).send({ message: err.message });
+      next(err);
+      return res.status(internalServerError).send({ message: err.message });
     });
 };
 
