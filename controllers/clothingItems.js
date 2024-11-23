@@ -12,10 +12,11 @@ const {
   internalServerError,
 } = require("../utils/errors");
 
-const createItem = (req, res, next) => {
+const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
+  const owner = req.user._id;
 
-  ClothingItem.create({ name, weather, imageUrl })
+  ClothingItem.create({ name, weather, imageUrl, owner })
     .then((item) => {
       console.log(item);
       res.status(createdCode).json({ data: item });
@@ -25,28 +26,28 @@ const createItem = (req, res, next) => {
       if (err.name === "ValidationError") {
         res.status(badRequestCode).json({ message: err.message });
       }
-      next(err);
+      //next(err);
       return res
         .status(internalServerError)
         .send({ message: "An error has occurred on the server" });
     });
 };
 
-const getItems = (req, res, next) => {
+const getItems = (req, res) => {
   ClothingItem.find({})
     .orFail()
     .then((items) => res.status(okCode).send(items))
     .catch((err) => {
       console.log(err.name);
       if (err.name === "ValidationError") {
-        res.status(400).send({ message: err.message });
+        res.status(badRequestCode).send({ message: err.message });
       }
-      next(err);
-      return res.status(badRequestCode).send({ message: err.message });
+      //next(err);
+      return res.status(internalServerError).send({ message: err.message });
     });
 };
 
-const updateItem = (req, res, next) => {
+const updateItem = (req, res) => {
   const { itemId } = req.params;
   const { imageURL } = req.body;
 
@@ -63,12 +64,12 @@ const updateItem = (req, res, next) => {
           .status(badRequestCode)
           .send({ message: "Get Items failed", err });
       }
-      next(err);
+      //next(err);
       return res.status(internalServerError).send({ message: err.message });
     });
 };
 
-const deleteItem = (req, res, next) => {
+const deleteItem = (req, res) => {
   const { itemId } = req.params;
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
     return res.status(badRequestCode).send({ message: "Invalid data" });
@@ -80,7 +81,7 @@ const deleteItem = (req, res, next) => {
       error.name = "DocumentNotFoundError";
       throw error;
     })
-    .then(() => res.status(200).send({ message: "Deletion successful" }))
+    .then(() => res.status(okCode).send({ message: "Deletion successful" }))
     .catch((err) => {
       console.log(err);
       if (!item.owner.equals(req.user._id)) {
@@ -102,7 +103,7 @@ const deleteItem = (req, res, next) => {
     });
 };
 
-const likeItem = (req, res, next) => {
+const likeItem = (req, res) => {
   const { itemId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
@@ -121,14 +122,14 @@ const likeItem = (req, res, next) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(notFoundCode).send({ message: err.message });
       }
-      next(err);
+      //next(err);
       return res
         .status(internalServerError)
         .send({ message: "Like Item failed", e });
     });
 };
 
-const unlikeItem = (req, res, next) => {
+const unlikeItem = (req, res) => {
   const { itemId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
@@ -146,7 +147,7 @@ const unlikeItem = (req, res, next) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(notFoundCode).send({ message: err.message });
       }
-      next(err);
+      //next(err);
       return res
         .status(internalServerError)
         .send({ message: "Dislike Item failed", err });
@@ -160,7 +161,4 @@ module.exports = {
   deleteItem,
   likeItem,
   unlikeItem,
-};
-module.exports.createItem = (req, res) => {
-  console.log(req.user._id); // _id will become accessible
 };

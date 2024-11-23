@@ -29,7 +29,7 @@ const clothingItemsSchema = new mongoose.Schema({
   },
   likes: {
     b: Boolean,
-    type: [mongoose.Schema.Types.ObjectId],
+    type: mongoose.Schema.Types.ObjectId,
     ref: "user",
     default: [],
     // a list of users who liked the item

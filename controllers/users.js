@@ -13,7 +13,7 @@ const {
 
 // GET /users
 
-const getUsers = (req, res, next) => {
+const getUsers = (req, res) => {
   User.find({})
     .orFail()
     .then((users) => {
@@ -24,22 +24,21 @@ const getUsers = (req, res, next) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(notFoundCode).send({ message: err.message });
       }
-      next(err);
+      //next(err);
       return res.status(internalServerError).send({ message: err.message });
     });
 };
 
 // POST /users
 
-const createUser = (req, res, next) => {
-  const { _id, name, avatar } = req.body;
+const createUser = (req, res) => {
+  const { name, avatar } = req.body;
 
-  return User.create({ _id, name, avatar })
+  return User.create({ name, avatar })
     .then((user) => {
       res.status(createdCode).send({
         name: user.name,
         avatar: user.avatar,
-        id: user._id,
       });
     })
     .catch((err) => {
@@ -47,15 +46,15 @@ const createUser = (req, res, next) => {
       if (err.name === "ValidationError") {
         return res.status(badRequestCode).send({ message: err.message });
       }
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(notFoundCode).send({ message: err.message });
-      }
-      next(err);
+      // if (err.name === "DocumentNotFoundError") {
+      //  return res.status(notFoundCode).send({ message: err.message });
+      //}
+      //next(err);
       return res.status(internalServerError).send({ message: err.message });
     });
 };
 
-const getUser = (req, res, next) => {
+const getUser = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
     .orFail(() => {
@@ -75,7 +74,7 @@ const getUser = (req, res, next) => {
       if (err.name === "CastError") {
         return res.status(badRequestCode).send({ message: err.message });
       }
-      next(err);
+      //next(err);
       return res.status(internalServerError).send({ message: err.message });
     });
 };
