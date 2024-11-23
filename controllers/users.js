@@ -2,12 +2,12 @@ const User = require("../models/user");
 const {
   okCode,
   createdCode,
-  noContentCode,
+  // noContentCode,
   badRequestCode,
-  invalidCredentialsCode,
-  forbidden,
+  // invalidCredentialsCode,
+  // forbidden,
   notFoundCode,
-  conflictCode,
+  // conflictCode,
   internalServerError,
 } = require("../utils/errors");
 
@@ -24,7 +24,7 @@ const getUsers = (req, res) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(notFoundCode).send({ message: err.message });
       }
-      //next(err);
+      // next(err);
       return res.status(internalServerError).send({ message: err.message });
     });
 };
@@ -48,20 +48,23 @@ const createUser = (req, res) => {
       }
       // if (err.name === "DocumentNotFoundError") {
       //  return res.status(notFoundCode).send({ message: err.message });
-      //}
-      //next(err);
+      // }
+      // next(err);
       return res.status(internalServerError).send({ message: err.message });
     });
 };
 
+// GET /:userId
+
 const getUser = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
-    .orFail(() => {
-      const error = new Error("User ID not found");
-      error.name = "DocumentNotFoundError";
-      throw error;
-    })
+    .orFail()
+    // .orFail(() => {
+    //   const error = new Error("User ID not found");
+    //   error.name = "DocumentNotFoundError";
+    //   throw error;
+    // })
     .then((user) => {
       const { avatar, name } = user;
       res.status(okCode).send({ avatar, name });
@@ -74,7 +77,7 @@ const getUser = (req, res) => {
       if (err.name === "CastError") {
         return res.status(badRequestCode).send({ message: err.message });
       }
-      //next(err);
+      // next(err);
       return res.status(internalServerError).send({ message: err.message });
     });
 };
