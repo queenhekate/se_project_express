@@ -7,14 +7,14 @@ const clothingItemsSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 2,
-    maxlngth: 30,
+    maxlength: 30,
   },
   weather: {
     type: String,
     required: true,
     enum: ["hot", "warm", "cold"],
   },
-  imageURL: {
+  imageUrl: {
     type: String,
     required: true,
     validate: {
@@ -28,8 +28,7 @@ const clothingItemsSchema = new mongoose.Schema({
     required: true,
   },
   likes: {
-    b: Boolean,
-    type: mongoose.Schema.Types.ObjectId,
+    type: [mongoose.Schema.Types.ObjectId],
     ref: "user",
     default: [],
     // a list of users who liked the item

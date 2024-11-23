@@ -49,9 +49,9 @@ const getItems = (req, res) => {
 
 const updateItem = (req, res) => {
   const { itemId } = req.params;
-  const { imageURL } = req.body;
+  const { imageUrl } = req.body;
 
-  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageURL } })
+  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } })
     .orFail()
     .then((item) => {
       console.log(item);
@@ -125,7 +125,7 @@ const likeItem = (req, res) => {
       //next(err);
       return res
         .status(internalServerError)
-        .send({ message: "Like Item failed", e });
+        .send({ message: "Like Item failed", err });
     });
 };
 
