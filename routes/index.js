@@ -7,7 +7,7 @@ router.use("/users", userRouter);
 router.use("/items", itemRouter);
 
 router.use((req, res) => {
-  res.statusCode(badRequestCode).send({ message: "Router not found" });
+  res.status(badRequestCode).send({ message: "Router not found" });
 });
 
 module.exports = router;

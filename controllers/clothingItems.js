@@ -6,7 +6,7 @@ const {
   // noContentCode,
   badRequestCode,
   // invalidCredentialsCode,
-  forbidden,
+  // forbidden,
   notFoundCode,
   // conflictCode,
   internalServerError,
@@ -16,13 +16,11 @@ const createItem = (req, res) => {
   const owner = req.user._id;
   const { name, weather, imageUrl } = req.body;
 
-  ClothingItem.create({ name, weather, imageUrl, owner })
-    .then((item) => {
-      console.log(item);
-      return res.status(createdCode).json({ data: item });
-    })
+  ClothingItem.create({ name, weather, imageUrl, owner }).then(item);
+  return res
+    .status(createdCode)
+    .json({ data: item })
     .catch((err) => {
-      console.log(err.name);
       if (err.name === "ValidationError") {
         return res.status(badRequestCode).json({ message: err.message });
       }
@@ -35,46 +33,39 @@ const createItem = (req, res) => {
 
 const getItems = (req, res) => {
   ClothingItem.find({})
-    .orFail()
-    .then((items) => res.status(okCode).send(items))
-    .catch((err) => {
-      console.log(err.name);
-      if (err.name === "ValidationError") {
-        return res.status(badRequestCode).send({ message: err.message });
-      }
-      // next(err);
-      return res.status(internalServerError).send({ message: err.message });
-    });
+    .then((items) => res.send(items))
+    .catch();
+  return res
+    .status(internalServerError)
+    .send({ message: "There was a problem with the server." });
 };
 
-const updateItem = (req, res) => {
-  const { itemId } = req.params;
-  const { imageUrl } = req.body;
+// const updateItem = (req, res) => {
+//   const { itemId } = req.params;
+//   const { imageUrl } = req.body;
 
-  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } })
-    .orFail()
-    .then((item) => {
-      console.log(item);
-      res.status(okCode).send({ data: item });
-    })
-    .catch((err) => {
-      console.log(err.name);
-      if (err.name === "ValidationError") {
-        return res
-          .status(badRequestCode)
-          .send({ message: "Get Items failed", err });
-      }
-      // next(err);
-      return res.status(internalServerError).send({ message: err.message });
-    });
-};
+//   ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } })
+//     .orFail()
+//     .then((item) => {
+//       res.status(okCode).send({ data: item });
+//     })
+//     .catch((err) => {
+//       console.log(err.name);
+//       if (err.name === "ValidationError") {
+//         return res
+//           .status(badRequestCode)
+//           .send({ message: "Get Items failed", err });
+//       }
+//       next(err);
+//       return res.status(internalServerError).send({ message: err.message });
+//     });
+// };
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
     return res.status(badRequestCode).send({ message: "Invalid data" });
   }
-  console.log(itemId);
   ClothingItem.findByIdAndDelete(itemId)
     .orFail(() => {
       const error = new Error("User ID not found");
@@ -92,7 +83,6 @@ const deleteItem = (req, res) => {
     //   return item.deleteOne().then(() => res.status(noContentCode).send({}));
     // })
     .catch((err) => {
-      console.log(err.name);
       if (err.name === "CastError") {
         return res.status(badRequestCode).send({ message: err.message });
       }
@@ -118,11 +108,10 @@ const likeItem = (req, res) => {
     .orFail()
     .then((likes) => res.status(okCode).send(likes))
     .catch((err) => {
-      console.log(err.name);
       if (err.name === "DocumentNotFoundError") {
         return res.status(notFoundCode).send({ message: err.message });
       }
-      //next(err);
+      // next(err);
       return res
         .status(internalServerError)
         .send({ message: "Like Item failed", err });
@@ -143,11 +132,10 @@ const unlikeItem = (req, res) => {
     .orFail()
     .then((likes) => res.status(okCode).send(likes))
     .catch((err) => {
-      console.log(err.name);
       if (err.name === "DocumentNotFoundError") {
         return res.status(notFoundCode).send({ message: err.message });
       }
-      //next(err);
+      // next(err);
       return res
         .status(internalServerError)
         .send({ message: "Dislike Item failed", err });
@@ -157,7 +145,7 @@ const unlikeItem = (req, res) => {
 module.exports = {
   createItem,
   getItems,
-  updateItem,
+  // updateItem,
   deleteItem,
   likeItem,
   unlikeItem,

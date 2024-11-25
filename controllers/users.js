@@ -60,21 +60,12 @@ const createUser = (req, res) => {
 const getUser = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
-    .orFail()
-    // .orFail(() => {
-    //   const error = new Error("User ID not found");
-    //   error.name = "DocumentNotFoundError";
-    //   throw error;
-    // })
     .then((user) => {
       const { avatar, name } = user;
-      res.status(okCode).send({ avatar, name });
+      res.send({ avatar, name });
     })
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(notFoundCode).send({ message: err.message });
-      }
       if (err.name === "CastError") {
         return res.status(badRequestCode).send({ message: err.message });
       }

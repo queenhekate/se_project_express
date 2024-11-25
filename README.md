@@ -1,9 +1,34 @@
-# WTWR (What to Wear?): Back End
-The back-end project is focused on creating a server for the WTWR application. You’ll gain a deeper understanding of how to work with databases, set up security and testing, and deploy web applications on a remote machine. The eventual goal is to create a server with an API and user authorization.
-## Running the Project
-`npm run start` — to launch the server 
+**WTWR Back-End Server**
 
-`npm run dev` — to launch the server with the hot reload feature
+This project sets up the back-end server for the WTWR application. It is built using the following technologies:
 
-### Testing
-Before committing your code, make sure you edit the file `sprint.txt` in the root folder. The file `sprint.txt` should contain the number of the sprint you're currently working on. For ex. 12
+- Express.js: Web application framework for building the API server.
+- Mongoose: ODM (Object Data Modeling) library to interact with a MongoDB database and define data schemas.
+- Postman: Used for testing API endpoints and ensuring proper error handling.
+
+**Features**
+
+- Express.js server to handle client requests.
+- Mongoose schemas for managing MongoDB data.
+- API endpoints tested for functionality and error management using Postman.
+
+**Setup**
+
+1. Clone the repository:
+   git clone <repository-url>
+
+2. Install dependencies:
+   npm install
+
+3. Start the server:
+   npm start
+
+4. Use Postman to test the API endpoints.
+
+**Technologies Used**
+
+Node.js
+Express.js
+Mongoose
+MongoDB
+Postman
