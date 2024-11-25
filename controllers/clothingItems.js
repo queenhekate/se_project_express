@@ -16,15 +16,12 @@ const createItem = (req, res) => {
   const owner = req.user._id;
   const { name, weather, imageUrl } = req.body;
 
-  ClothingItem.create({ name, weather, imageUrl, owner }).then(item);
-  return res
-    .status(createdCode)
-    .json({ data: item })
+  ClothingItem.create({ name, weather, imageUrl, owner })
+    .then((item) => res.status(createdCode).json({ data: item }))
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res.status(badRequestCode).json({ message: err.message });
       }
-      // next(err);
       return res
         .status(internalServerError)
         .send({ message: "An error has occurred on the server" });
@@ -33,11 +30,12 @@ const createItem = (req, res) => {
 
 const getItems = (req, res) => {
   ClothingItem.find({})
-    .then((items) => res.send(items))
-    .catch();
-  return res
-    .status(internalServerError)
-    .send({ message: "There was a problem with the server." });
+    .then((items) => {
+      res.status(okCode).send(items);
+    })
+    .catch((err) => {
+      res.status(internalServerError).send({ message: err.message });
+    });
 };
 
 // const updateItem = (req, res) => {
@@ -73,15 +71,6 @@ const deleteItem = (req, res) => {
       throw error;
     })
     .then(() => res.status(okCode).send({ message: "Deletion successful" }))
-    // .catch((err) => {
-    //   console.log(err);
-    //   if (!item.owner.equals(req.user._id)) {
-    //     return res
-    //       .status(forbidden)
-    //       .send({ message: "You are not authorized to delete this item" });
-    //   }
-    //   return item.deleteOne().then(() => res.status(noContentCode).send({}));
-    // })
     .catch((err) => {
       if (err.name === "CastError") {
         return res.status(badRequestCode).send({ message: err.message });

@@ -15,15 +15,11 @@ const {
 
 const getUsers = (req, res) => {
   User.find({})
-    .orFail()
     .then((users) => {
       res.status(okCode).send(users);
     })
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(notFoundCode).send({ message: err.message });
-      }
       // next(err);
       return res.status(internalServerError).send({ message: err.message });
     });
@@ -60,12 +56,16 @@ const createUser = (req, res) => {
 const getUser = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
+    .orFail()
     .then((user) => {
       const { avatar, name } = user;
-      res.send({ avatar, name });
+      res.status(okCode).send({ avatar, name });
     })
     .catch((err) => {
       console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(notFoundCode).send({ message: err.message });
+      }
       if (err.name === "CastError") {
         return res.status(badRequestCode).send({ message: err.message });
       }
