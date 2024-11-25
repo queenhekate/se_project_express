@@ -3,12 +3,8 @@ const ClothingItem = require("../models/clothingItem");
 const {
   okCode,
   createdCode,
-  // noContentCode,
   badRequestCode,
-  // invalidCredentialsCode,
-  // forbidden,
   notFoundCode,
-  // conflictCode,
   internalServerError,
 } = require("../utils/errors");
 
@@ -33,40 +29,23 @@ const getItems = (req, res) => {
     .then((items) => {
       res.status(okCode).send(items);
     })
-    .catch((err) => {
-      res.status(internalServerError).send({ message: err.message });
+    .catch(() => {
+      res
+        .status(internalServerError)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
-// const updateItem = (req, res) => {
-//   const { itemId } = req.params;
-//   const { imageUrl } = req.body;
-
-//   ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } })
-//     .orFail()
-//     .then((item) => {
-//       res.status(okCode).send({ data: item });
-//     })
-//     .catch((err) => {
-//       console.log(err.name);
-//       if (err.name === "ValidationError") {
-//         return res
-//           .status(badRequestCode)
-//           .send({ message: "Get Items failed", err });
-//       }
-//       next(err);
-//       return res.status(internalServerError).send({ message: err.message });
-//     });
-// };
-
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
+
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
     return res.status(badRequestCode).send({ message: "Invalid data" });
   }
-  ClothingItem.findByIdAndDelete(itemId)
+
+  return ClothingItem.findByIdAndDelete(itemId)
     .orFail(() => {
-      const error = new Error("User ID not found");
+      const error = new Error("Item ID not found");
       error.name = "DocumentNotFoundError";
       throw error;
     })
@@ -91,7 +70,7 @@ const likeItem = (req, res) => {
 
   return ClothingItem.findByIdAndUpdate(
     req.params.itemId,
-    { $addToSet: { likes: req.user._id } }, // add _id to the array if it's not there yet
+    { $addToSet: { likes: req.user._id } },
     { new: true }
   )
     .orFail()
@@ -100,10 +79,9 @@ const likeItem = (req, res) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(notFoundCode).send({ message: err.message });
       }
-      // next(err);
       return res
         .status(internalServerError)
-        .send({ message: "Like Item failed", err });
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -115,7 +93,7 @@ const unlikeItem = (req, res) => {
   }
   return ClothingItem.findByIdAndUpdate(
     req.params.itemId,
-    { $pull: { likes: req.user._id } }, // remove _id from the array
+    { $pull: { likes: req.user._id } },
     { new: true }
   )
     .orFail()
@@ -124,17 +102,15 @@ const unlikeItem = (req, res) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(notFoundCode).send({ message: err.message });
       }
-      // next(err);
       return res
         .status(internalServerError)
-        .send({ message: "Dislike Item failed", err });
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
 module.exports = {
   createItem,
   getItems,
-  // updateItem,
   deleteItem,
   likeItem,
   unlikeItem,

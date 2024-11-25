@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { badRequestCode } = require("../utils/errors");
+const { notFoundCode } = require("../utils/errors");
 const userRouter = require("./users");
 const itemRouter = require("./clothingItems");
 
@@ -7,7 +7,7 @@ router.use("/users", userRouter);
 router.use("/items", itemRouter);
 
 router.use((req, res) => {
-  res.status(badRequestCode).send({ message: "Router not found" });
+  res.status(notFoundCode).send({ message: "Router not found" });
 });
 
 module.exports = router;

@@ -2,12 +2,8 @@ const User = require("../models/user");
 const {
   okCode,
   createdCode,
-  // noContentCode,
   badRequestCode,
-  // invalidCredentialsCode,
-  // forbidden,
   notFoundCode,
-  // conflictCode,
   internalServerError,
 } = require("../utils/errors");
 
@@ -21,7 +17,9 @@ const getUsers = (req, res) => {
     .catch((err) => {
       console.error(err);
       // next(err);
-      return res.status(internalServerError).send({ message: err.message });
+      return res
+        .status(internalServerError)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -43,11 +41,9 @@ const createUser = (req, res) => {
       if (err.name === "ValidationError") {
         return res.status(badRequestCode).send({ message: err.message });
       }
-      // if (err.name === "DocumentNotFoundError") {
-      //  return res.status(notFoundCode).send({ message: err.message });
-      // }
-      // next(err);
-      return res.status(internalServerError).send({ message: err.message });
+      return res
+        .status(internalServerError)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -69,8 +65,9 @@ const getUser = (req, res) => {
       if (err.name === "CastError") {
         return res.status(badRequestCode).send({ message: err.message });
       }
-      // next(err);
-      return res.status(internalServerError).send({ message: err.message });
+      return res
+        .status(internalServerError)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
