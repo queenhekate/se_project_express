@@ -5,7 +5,7 @@ const { JWT_SECRET } = require("../utils/config");
 
 const {
   okCode,
-  createdCode,
+  conflictCode,
   badRequestCode,
   notFoundCode,
   internalServerError,
@@ -78,35 +78,29 @@ const createUser = (req, res, next) => {
         throw error;
       }
 
-      return bcrypt.hash(password, 10);
-    })
-
-    .then((hash) =>
-      User.create({ name, avatar, email, password: hash }).then((user) => {
-        res.status(createdCode).send({
-          name: user.name,
-          avatar: user.avatar,
-          _id: user._id,
+      return bcrypt
+        .hash(password, 10)
+        .then((hash) =>
+          User.create({ name, avatar, email, password: hash }).then((user) => {
+            const { password: UserPassword, ...userWithoutPassword } =
+              user.toObject();
+            return res.status(201).send(userWithoutPassword);
+          })
+        )
+        .catch((err) => {
+          console.error(err);
+          if (err.code === 11000) {
+            return res
+              .status(conflictCode)
+              .send({ message: "email already exists" });
+          }
+          if (err.name === "ValidationError") {
+            return res.status(badRequestCode).send({ message: err.message });
+          }
+          return res
+            .status(internalServerError)
+            .send({ message: "internal server error" });
         });
-      })
-    )
-    .then((user) => {
-      const { password: UserPassword, ...userWithoutPassword } =
-        user.toObject();
-      return res.status(201).send(userWithoutPassword);
-    })
-    .catch((err) => {
-      if (err.statusCode === invalidCredentialsCode) {
-        return res
-          .status(invalidCredentialsCode)
-          .send({ message: "User already exists" });
-      }
-      if (err.name === "ValidationError") {
-        return res.status(badRequestCode).send({ message: "Invalid user" });
-      }
-      return res
-        .status(internalServerError)
-        .send({ message: "An error has occurred on the server" });
     });
   next();
 };

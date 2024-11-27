@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret"; // Ensure this is consistent
+const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 const { invalidCredentialsCode } = require("../utils/errors");
 
@@ -34,6 +34,7 @@ const auth = (req, res, next) => {
       .status(invalidCredentialsCode)
       .json({ message: "Unauthorized: Invalid or expired token" });
   }
+  return null;
 };
 
 module.exports = auth;
