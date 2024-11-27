@@ -6,6 +6,7 @@ const {
   badRequestCode,
   notFoundCode,
   internalServerError,
+  forbidden,
 } = require("../utils/errors");
 
 const createItem = (req, res) => {
@@ -39,8 +40,8 @@ const getItems = (req, res) => {
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(itemId)) {
-    return res.status(badRequestCode).send({ message: "Invalid data" });
+  if (!/^[0-9a-fA-F]{24}$/.test(itemId)) {
+    return res.status(forbidden).json({ message: "forbidden" });
   }
 
   return ClothingItem.findByIdAndDelete(itemId)
