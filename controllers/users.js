@@ -30,7 +30,17 @@ const login = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      return res.status(invalidCredentialsCode).send({ message: err.message });
+      if (
+        err.message.includes("Incorrect email") ||
+        err.message.includes("Incorrect password")
+      ) {
+        return res
+          .status(invalidCredentialsCode)
+          .send({ message: err.message });
+      }
+      return res
+        .status(internalServerError)
+        .send({ message: "Internal Server Error" });
     });
 };
 
@@ -39,70 +49,72 @@ const getCurrentUser = (req, res) => {
 
   User.findById(_id)
     .then((data) => {
+      if (!data) {
+        return res.status(notFoundCode).send({ message: "User not found" });
+      }
       const user = {
         _id: data.id,
         name: data.name,
         email: data.email,
         avatar: data.avatar,
       };
-      if (!user) {
-        return res.status(notFoundCode).send({ message: "err.message" });
-      }
       return res.status(okCode).send(user);
     })
     .catch((err) => {
       console.error(err);
+      if (err.message.includes("Unauthorized")) {
+        return res
+          .status(invalidCredentialsCode)
+          .send({ message: "Unauthorized: Invalid or expired token" });
+      }
       return res
         .status(internalServerError)
         .send({ message: "An error has occurred on the server" });
     });
 };
 
-const createUser = (req, res, next) => {
+const createUser = (req, res) => {
   const { email, password, name, avatar } = req.body;
 
   if (!email || !password) {
-    res
+    return res
       .status(badRequestCode)
       .send({ message: "Email and password are required." });
   }
 
-  User.findOne({ email: email.toLowerCase() })
-    .select("+password")
-    .then((user) => {
-      if (user) {
-        const error = new Error(
-          "The user with the provided email already exists"
-        );
-        error.statusCode = invalidCredentialsCode;
-        throw error;
-      }
+  return User.findOne({ email: email.toLowerCase() }).then((existingUser) => {
+    if (existingUser) {
+      return res.status(conflictCode).send({
+        message: "The user with the provided email already exists",
+      });
+    }
 
-      return bcrypt
-        .hash(password, 10)
-        .then((hash) =>
-          User.create({ name, avatar, email, password: hash }).then((user) => {
+    return bcrypt
+      .hash(password, 10)
+      .then((hashedPassword) =>
+        User.create({ name, avatar, email, password: hashedPassword }).then(
+          (user) => {
             const { password: UserPassword, ...userWithoutPassword } =
               user.toObject();
             return res.status(201).send(userWithoutPassword);
-          })
+          }
         )
-        .catch((err) => {
-          console.error(err);
-          if (err.code === 11000) {
-            return res
-              .status(conflictCode)
-              .send({ message: "email already exists" });
-          }
-          if (err.name === "ValidationError") {
-            return res.status(badRequestCode).send({ message: err.message });
-          }
-          return res
-            .status(internalServerError)
-            .send({ message: "internal server error" });
-        });
-    });
-  next();
+      )
+      .catch((err) => {
+        console.error(err);
+        if (err.code === 11000) {
+          return res.status(conflictCode).send({
+            message: "Email already exists",
+          });
+        }
+        if (err.name === "ValidationError") {
+          return res.status(badRequestCode).send({ message: err.message });
+        }
+        return res
+          .status(internalServerError)
+          .send({ message: "Internal server error" });
+      });
+  });
 };
 
 const updateProfile = (req, res) => {
