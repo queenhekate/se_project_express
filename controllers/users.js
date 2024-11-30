@@ -107,37 +107,6 @@ const createUser = (req, res) => {
     });
 };
 
-// const createUser = (req, res) => {
-//   const { email, password, name, avatar } = req.body;
-
-//   if (!email || !password) {
-//     return res
-//       .status(badRequestCode)
-//       .send({ message: "Email and password are required." });
-//   }
-
-//   User.create({ name, avatar, email: email.toLowerCase(), password })
-//     .then((user) => {
-//       const { password: UserPassword, ...userWithoutPassword } =
-//         user.toObject();
-//       return res.status(201).send(userWithoutPassword);
-//     })
-//     .catch((err) => {
-//       if (err.code === 11000) {
-//         return res.status(conflictCode).send({
-//           message: "The user with the provided email already exists",
-//         });
-//       }
-//       if (err.name === "ValidationError") {
-//         return res.status(badRequestCode).send({ message: err.message });
-//       }
-//       return res
-//         .status(internalServerError)
-//         .send({ message: "Internal server error" });
-//     });
-//   return null;
-// };
-
 const updateProfile = (req, res) => {
   const { name, avatar } = req.body;
   const { _id } = req.user;
