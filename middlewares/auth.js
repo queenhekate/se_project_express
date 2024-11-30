@@ -5,11 +5,6 @@ const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 const { invalidCredentialsCode, badRequestCode } = require("../utils/errors");
 
 const auth = (req, res, next) => {
-  const excludedRoutes = ["/signin", "/signup"];
-  const isExcluded = excludedRoutes.some((route) =>
-    req.originalUrl.startsWith(route)
-  );
-
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith("Bearer ")) {
@@ -26,7 +21,9 @@ const auth = (req, res, next) => {
     return next();
   } catch (error) {
     if (error.name === "JsonWebTokenError") {
-      return res.status(badRequestCode).json({ message: "Malformed token" });
+      return res
+        .status(invalidCredentialsCode)
+        .json({ message: error.message });
     }
     if (error.name === "TokenExpiredError") {
       return res
