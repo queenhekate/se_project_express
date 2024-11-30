@@ -41,16 +41,21 @@ const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
   if (!/^[0-9a-fA-F]{24}$/.test(itemId)) {
-    return res.status(forbidden).json({ message: "forbidden" });
+    return res.status(badRequestCode).json({ message: "bad request" });
   }
 
-  return ClothingItem.findByIdAndDelete(itemId)
-    .orFail(() => {
-      const error = new Error("Item ID not found");
-      error.name = "DocumentNotFoundError";
-      throw error;
+  return ClothingItem.findById(itemId)
+    .orFail()
+    .then((item) => {
+      if (String(item.owner) !== req.user._id) {
+        return res.status(forbidden).send({ message: "delete item forbidden" });
+      }
+      return item
+        .deleteOne()
+        .then(() =>
+          res.status(okCode).send({ message: "Successfully deleted" })
+        );
     })
-    .then(() => res.status(okCode).send({ message: "Deletion successful" }))
     .catch((err) => {
       if (err.name === "CastError") {
         return res.status(badRequestCode).send({ message: err.message });
@@ -58,7 +63,9 @@ const deleteItem = (req, res) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(notFoundCode).send({ message: err.message });
       }
-      return res.status(internalServerError).send({ message: err.message });
+      return res
+        .status(internalServerError)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 

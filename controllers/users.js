@@ -62,11 +62,6 @@ const getCurrentUser = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      if (err.message.includes("Unauthorized")) {
-        return res
-          .status(invalidCredentialsCode)
-          .send({ message: "Unauthorized: Invalid or expired token" });
-      }
       return res
         .status(internalServerError)
         .send({ message: "An error has occurred on the server" });
@@ -82,40 +77,66 @@ const createUser = (req, res) => {
       .send({ message: "Email and password are required." });
   }
 
-  return User.findOne({ email: email.toLowerCase() }).then((existingUser) => {
-    if (existingUser) {
-      return res.status(conflictCode).send({
-        message: "The user with the provided email already exists",
-      });
-    }
-
-    return bcrypt
-      .hash(password, 10)
-      .then((hashedPassword) =>
-        User.create({ name, avatar, email, password: hashedPassword }).then(
-          (user) => {
-            const { password: UserPassword, ...userWithoutPassword } =
-              user.toObject();
-            return res.status(201).send(userWithoutPassword);
-          }
-        )
-      )
-      .catch((err) => {
-        console.error(err);
-        if (err.code === 11000) {
-          return res.status(conflictCode).send({
-            message: "Email already exists",
-          });
-        }
-        if (err.name === "ValidationError") {
-          return res.status(badRequestCode).send({ message: err.message });
-        }
-        return res
-          .status(internalServerError)
-          .send({ message: "Internal server error" });
-      });
-  });
+  return bcrypt
+    .hash(password, 10)
+    .then((hashedPassword) =>
+      User.create({
+        name,
+        avatar,
+        email: email.toLowerCase(),
+        password: hashedPassword,
+      }).then((user) => {
+        const { password: UserPassword, ...userWithoutPassword } =
+          user.toObject();
+        return res.status(201).send(userWithoutPassword);
+      })
+    )
+    .catch((err) => {
+      console.error(err);
+      if (err.code === 11000) {
+        return res.status(conflictCode).send({
+          message: "Email already exists",
+        });
+      }
+      if (err.name === "ValidationError") {
+        return res.status(badRequestCode).send({ message: err.message });
+      }
+      return res
+        .status(internalServerError)
+        .send({ message: "An error has occurred on the server" });
+    });
 };
+
+// const createUser = (req, res) => {
+//   const { email, password, name, avatar } = req.body;
+
+//   if (!email || !password) {
+//     return res
+//       .status(badRequestCode)
+//       .send({ message: "Email and password are required." });
+//   }
+
+//   User.create({ name, avatar, email: email.toLowerCase(), password })
+//     .then((user) => {
+//       const { password: UserPassword, ...userWithoutPassword } =
+//         user.toObject();
+//       return res.status(201).send(userWithoutPassword);
+//     })
+//     .catch((err) => {
+//       if (err.code === 11000) {
+//         return res.status(conflictCode).send({
+//           message: "The user with the provided email already exists",
+//         });
+//       }
+//       if (err.name === "ValidationError") {
+//         return res.status(badRequestCode).send({ message: err.message });
+//       }
+//       return res
+//         .status(internalServerError)
+//         .send({ message: "Internal server error" });
+//     });
+//   return null;
+// };
 
 const updateProfile = (req, res) => {
   const { name, avatar } = req.body;

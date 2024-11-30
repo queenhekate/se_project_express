@@ -10,10 +10,6 @@ const auth = (req, res, next) => {
     req.originalUrl.startsWith(route)
   );
 
-  if (isExcluded) {
-    return next();
-  }
-
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith("Bearer ")) {
