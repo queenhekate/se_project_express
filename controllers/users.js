@@ -14,6 +14,7 @@ const {
 
 const login = (req, res) => {
   const { email, password } = req.body;
+  console.log(">> LOGIN", { email, password });
 
   if (!email || !password) {
     return res
