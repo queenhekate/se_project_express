@@ -54,8 +54,9 @@ const getCurrentUser = (req, res) => {
       }
       const user = {
         _id: data.id,
-        name: data.name,
         email: data.email,
+        password: data.password,
+        name: data.name,
         avatar: data.avatar,
       };
       return res.status(okCode).send(user);
@@ -81,10 +82,10 @@ const createUser = (req, res) => {
     .hash(password, 10)
     .then((hashedPassword) =>
       User.create({
-        name,
-        avatar,
         email: email.toLowerCase(),
         password: hashedPassword,
+        name,
+        avatar,
       }).then((user) => {
         const { password: UserPassword, ...userWithoutPassword } =
           user.toObject();
@@ -120,7 +121,6 @@ const updateProfile = (req, res) => {
       const updatedUser = {
         _id: data.id,
         name: data.name,
-        email: data.email,
         avatar: data.avatar,
       };
       if (!updatedUser) {
