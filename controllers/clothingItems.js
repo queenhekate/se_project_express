@@ -27,8 +27,10 @@ const createItem = (req, res) => {
 
 const getItems = (req, res) => {
   ClothingItem.find({})
+    .populate("owner")
     .then((items) => {
-      res.status(okCode).send(items);
+      console.log(items);
+      res.status(okCode).json(items);
     })
     .catch(() => {
       res
