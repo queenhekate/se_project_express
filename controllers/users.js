@@ -12,7 +12,7 @@ const {
   invalidCredentialsCode,
 } = require("../utils/errors");
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   console.log(">> LOGIN", { email, password });
 
@@ -45,7 +45,7 @@ const login = (req, res) => {
     });
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   const { _id } = req.user;
 
   User.findById(_id)
@@ -70,7 +70,7 @@ const getCurrentUser = (req, res) => {
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { email, password, name, avatar } = req.body;
 
   if (!email || !password) {
@@ -109,7 +109,7 @@ const createUser = (req, res) => {
     });
 };
 
-const updateProfile = (req, res) => {
+const updateProfile = (req, res, next) => {
   const { name, avatar } = req.body;
   const { _id } = req.user;
 
