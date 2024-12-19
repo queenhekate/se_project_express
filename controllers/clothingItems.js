@@ -9,7 +9,7 @@ const {
   forbidden,
 } = require("../utils/errors");
 
-const createItem = (req, res) => {
+const createItem = (req, res, next) => {
   const owner = req.user._id;
   const { name, weather, imageUrl } = req.body;
 
