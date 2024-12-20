@@ -24,11 +24,11 @@ app.post("/signin", login);
 app.post("/signup", createUser);
 app.use("/", mainRouter);
 
-app.use((err, req, res) => {
-  res
-    .status(err.status || 500)
-    .json({ message: err.message || "Server Error" });
-});
+// app.use((err, req, res) => {
+//   res
+//     .status(err.status || 500)
+//     .json({ message: err.message || "Server Error" });
+// });
 
 app.use(errorHandler);
 

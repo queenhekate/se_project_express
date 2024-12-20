@@ -3,10 +3,9 @@ const ClothingItem = require("../models/clothingItem");
 const {
   okCode,
   createdCode,
-  badRequestCode,
-  notFoundCode,
-  internalServerError,
-  forbidden,
+  BadRequestError,
+  NotFoundError,
+  ForbiddenError,
 } = require("../utils/errors");
 
 const createItem = (req, res, next) => {
@@ -16,39 +15,37 @@ const createItem = (req, res, next) => {
   ClothingItem.create({ name, weather, imageUrl, owner })
     .then((item) => res.status(createdCode).json({ data: item }))
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        return res.status(badRequestCode).json({ message: err.message });
+      if (err.name === "BadRequestError") {
+        next(new BadRequestError("item is in invalid format"));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: "An error has occurred on the server" });
+      next(err);
     });
 };
 
-const getItems = (req, res) => {
+const getItems = (req, res, next) => {
   ClothingItem.find({})
     .then((items) => {
       res.status(okCode).json(items);
     })
-    .catch(() => {
-      res
-        .status(internalServerError)
-        .send({ message: "An error has occurred on the server" });
+    .catch((err) => {
+      next(err);
     });
 };
 
-const deleteItem = (req, res) => {
+const deleteItem = (req, res, next) => {
   const { itemId } = req.params;
 
   if (!/^[0-9a-fA-F]{24}$/.test(itemId)) {
-    return res.status(badRequestCode).json({ message: "bad request" });
+    return res.status(BadRequestError).json({ message: "bad request" });
   }
 
   return ClothingItem.findById(itemId)
     .orFail()
     .then((item) => {
       if (String(item.owner) !== req.user._id) {
-        return res.status(forbidden).send({ message: "delete item forbidden" });
+        return res
+          .status(ForbiddenError)
+          .send({ message: "delete item forbidden" });
       }
       return item
         .deleteOne()
@@ -58,22 +55,20 @@ const deleteItem = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        return res.status(badRequestCode).send({ message: err.message });
+        next(new BadRequestError("item is in invalid format"));
       }
       if (err.name === "DocumentNotFoundError") {
-        return res.status(notFoundCode).send({ message: err.message });
+        next(new NotFoundError("item not found"));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: "An error has occurred on the server" });
+      next(err);
     });
 };
 
-const likeItem = (req, res) => {
+const likeItem = (req, res, next) => {
   const { itemId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
-    return res.status(badRequestCode).send({ message: "Invalid data" });
+    return res.status(BadRequestError).send({ message: "Invalid data" });
   }
 
   return ClothingItem.findByIdAndUpdate(
@@ -85,19 +80,17 @@ const likeItem = (req, res) => {
     .then((likes) => res.status(okCode).send(likes))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return res.status(notFoundCode).send({ message: err.message });
+        next(new NotFoundError("item not found"));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: "An error has occurred on the server" });
+      next(err);
     });
 };
 
-const unlikeItem = (req, res) => {
+const unlikeItem = (req, res, next) => {
   const { itemId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
-    return res.status(badRequestCode).send({ message: "Invalid data" });
+    return res.status(BadRequestError).send({ message: "Invalid data" });
   }
   return ClothingItem.findByIdAndUpdate(
     req.params.itemId,
@@ -108,11 +101,9 @@ const unlikeItem = (req, res) => {
     .then((likes) => res.status(okCode).send(likes))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return res.status(notFoundCode).send({ message: err.message });
+        next(new NotFoundError("item not found"));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: "An error has occurred on the server" });
+      next(err);
     });
 };
 

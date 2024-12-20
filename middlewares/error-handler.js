@@ -1,8 +1,8 @@
 const errorHandler = (err, req, res, next) => {
-  console.error(err); // Log the error for debugging
+  console.error(">> ERROR: ", err); // Log the error for debugging
 
   // Check for specific types of errors and set the status code accordingly
-  if (err.name === "ValidationError") {
+  if (err.name === "BadRequestError") {
     // Validation error (400 Bad Request)
     return res.status(400).json({ error: "Bad Request Error" });
   }

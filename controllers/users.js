@@ -5,11 +5,10 @@ const { JWT_SECRET } = require("../utils/config");
 
 const {
   okCode,
-  conflictCode,
-  badRequestCode,
-  notFoundCode,
-  internalServerError,
-  invalidCredentialsCode,
+  ConflictCode,
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
 } = require("../utils/errors");
 
 const login = (req, res, next) => {
@@ -18,7 +17,7 @@ const login = (req, res, next) => {
 
   if (!email || !password) {
     return res
-      .status(badRequestCode)
+      .status(BadRequestError)
       .send({ message: "Email and password are required." });
   }
 
@@ -35,13 +34,9 @@ const login = (req, res, next) => {
         err.message.includes("Incorrect email") ||
         err.message.includes("Incorrect password")
       ) {
-        return res
-          .status(invalidCredentialsCode)
-          .send({ message: err.message });
+        next(new UnauthorizedError("email or password incorrect"));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: "Internal Server Error" });
+      next(err);
     });
 };
 
@@ -51,7 +46,7 @@ const getCurrentUser = (req, res, next) => {
   User.findById(_id)
     .then((data) => {
       if (!data) {
-        return res.status(notFoundCode).send({ message: "User not found" });
+        return res.status(NotFoundError).send({ message: "User not found" });
       }
       const user = {
         _id: data.id,
@@ -63,10 +58,7 @@ const getCurrentUser = (req, res, next) => {
       return res.status(okCode).send(user);
     })
     .catch((err) => {
-      console.error(err);
-      return res
-        .status(internalServerError)
-        .send({ message: "An error has occurred on the server" });
+      next(err);
     });
 };
 
@@ -75,7 +67,7 @@ const createUser = (req, res, next) => {
 
   if (!email || !password) {
     return res
-      .status(badRequestCode)
+      .status(BadRequestError)
       .send({ message: "Email and password are required." });
   }
 
@@ -96,16 +88,12 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       console.error(err);
       if (err.code === 11000) {
-        return res.status(conflictCode).send({
-          message: "Email already exists",
-        });
+        next(new ConflictCode("Email already exists"));
       }
       if (err.name === "ValidationError") {
-        return res.status(badRequestCode).send({ message: err.message });
+        next(new BadRequestError("item is in invalid format"));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: "An error has occurred on the server" });
+      next(err);
     });
 };
 
@@ -125,18 +113,16 @@ const updateProfile = (req, res, next) => {
         avatar: data.avatar,
       };
       if (!updatedUser) {
-        return res.status(notFoundCode).send({ message: "user not found" });
+        return res.status(NotFoundError).send({ message: "user not found" });
       }
       return res.status(okCode).send(updatedUser);
     })
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(badRequestCode).send({ message: err.message });
+        next(new BadRequestError("item is in invalid format"));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: "An error has occurred on the server" });
+      next(err);
     });
 };
 
