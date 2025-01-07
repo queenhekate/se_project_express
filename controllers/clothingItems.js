@@ -1,12 +1,9 @@
 const mongoose = require("mongoose");
 const ClothingItem = require("../models/clothingItem");
-const {
-  okCode,
-  createdCode,
-  BadRequestError,
-  NotFoundError,
-  ForbiddenError,
-} = require("../utils/errors");
+const { okCode, createdCode } = require("../utils/errors");
+const BadRequestError = require("../errors/bad-request-error");
+const UnauthorizedError = require("../errors/unauthorized-error");
+const NotFoundError = require("../errors/not-found-err");
 
 const createItem = (req, res, next) => {
   const owner = req.user._id;
@@ -36,16 +33,14 @@ const deleteItem = (req, res, next) => {
   const { itemId } = req.params;
 
   if (!/^[0-9a-fA-F]{24}$/.test(itemId)) {
-    return res.status(BadRequestError).json({ message: "bad request" });
+    throw new BadRequestError("Bad request");
   }
 
   return ClothingItem.findById(itemId)
     .orFail()
     .then((item) => {
       if (String(item.owner) !== req.user._id) {
-        return res
-          .status(ForbiddenError)
-          .send({ message: "delete item forbidden" });
+        throw new UnauthorizedError("delete item forbidden");
       }
       return item
         .deleteOne()
@@ -68,7 +63,7 @@ const likeItem = (req, res, next) => {
   const { itemId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
-    return res.status(BadRequestError).send({ message: "Invalid data" });
+    throw new BadRequestError("Invalid data");
   }
 
   return ClothingItem.findByIdAndUpdate(
@@ -90,7 +85,7 @@ const unlikeItem = (req, res, next) => {
   const { itemId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
-    return res.status(BadRequestError).send({ message: "Invalid data" });
+    throw new BadRequestError("Invalid data");
   }
   return ClothingItem.findByIdAndUpdate(
     req.params.itemId,

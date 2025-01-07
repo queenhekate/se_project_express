@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const { errors } = require("celebrate");
 const mainRouter = require("./routes/index");
 const { login, createUser } = require("./controllers/users");
 const errorHandler = require("./middlewares/error-handler");
@@ -23,16 +24,23 @@ app.use(express.json());
 app.post("/signin", login);
 app.post("/signup", createUser);
 app.use("/", mainRouter);
+app.use(routes);
 
-// app.use((err, req, res) => {
-//   res
-//     .status(err.status || 500)
-//     .json({ message: err.message || "Server Error" });
-// });
+app.use((err, req, res, next) => {
+  console.error(err);
+  return res.status(err.statusCode).send({ message: err.message });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  // if an error has no status, set it to 500
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({
+    // check the status and display a message based on it
+    message: statusCode === 500 ? "An error occurred on the server" : message,
+  });
+});
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`Server is running on port ${PORT}`);
-});
+app.listen(PORT);
