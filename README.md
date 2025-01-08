@@ -1,5 +1,7 @@
 **WTWR Back-End Server**
 
+domain name: wtwr1000.jumpingcrab.com
+
 This project sets up the back-end server for the WTWR application. It is built using the following technologies:
 
 - Express.js: Web application framework for building the API server.
