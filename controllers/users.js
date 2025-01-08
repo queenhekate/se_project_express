@@ -5,8 +5,8 @@ const { JWT_SECRET } = require("../utils/config");
 const BadRequestError = require("../errors/bad-request-error");
 const UnauthorizedError = require("../errors/unauthorized-error");
 const NotFoundError = require("../errors/not-found-err");
-
-const { okCode, conflictCode } = require("../utils/errors");
+const ConflictError = require("../errors/conflict-error");
+const { okCode } = require("../utils/errors");
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
@@ -42,7 +42,6 @@ const getCurrentUser = (req, res, next) => {
     .then((data) => {
       if (!data) {
         throw new NotFoundError("User not found");
-        // return res.status(NotFoundError).send({ message: "User not found" });
       }
       const user = {
         _id: data.id,
@@ -63,9 +62,6 @@ const createUser = (req, res, next) => {
 
   if (!email || !password) {
     throw new BadRequestError("Email and password are required.");
-    // return res
-    //   .status(BadRequestError)
-    //   .send({ message: "Email and password are required." });
   }
 
   return bcrypt
@@ -83,11 +79,8 @@ const createUser = (req, res, next) => {
       })
     )
     .catch((err) => {
-      console.error(err);
       if (err.code === 11000) {
-        return res
-          .status(conflictCode)
-          .send({ message: "Email already exists." });
+        next(new ConflictError("Email already exists."));
       }
       if (err.name === "ValidationError") {
         next(new BadRequestError("item is in invalid format"));

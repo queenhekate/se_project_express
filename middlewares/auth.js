@@ -6,7 +6,7 @@ const BadRequestError = require("../errors/bad-request-error");
 const auth = (req, res, next) => {
   const { authorization } = req.headers;
 
-  if (!authorization || !authorization.startsWith("Bearer ")) {
+  if (!authorization || !authorization.startsWith("Bearer")) {
     throw new BadRequestError("Authorization token required");
   }
 
