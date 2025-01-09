@@ -10,7 +10,7 @@ const { okCode } = require("../utils/errors");
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  console.log(">> LOGIN", { email, password });
+  // console.log(">> LOGIN", { email, password });
 
   if (!email || !password) {
     throw new BadRequestError("Email and password are required.");
@@ -73,8 +73,10 @@ const createUser = (req, res, next) => {
         name,
         avatar,
       }).then((user) => {
-        const { password: UserPassword, ...userWithoutPassword } =
-          user.toObject();
+        const {
+          password: UserPassword, // eslint-disable-line
+          ...userWithoutPassword
+        } = user.toObject();
         return res.status(201).send(userWithoutPassword);
       })
     )
