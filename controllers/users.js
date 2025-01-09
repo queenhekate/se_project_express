@@ -120,23 +120,4 @@ const updateProfile = (req, res, next) => {
     });
 };
 
-// module.exports.getProfile = (req, res, next) =>
-//   User.findOne({ _id: req.params.userId })
-//     .then((user) => {
-//       if (!user) {
-//         // if there is no such user,
-//         // throw an exception
-//         throw new NotFoundError("No user with matching ID found");
-//       }
-
-//       res.send(user);
-//     })
-//     .catch((err) => {
-//       if (err.name === "CastError") {
-//         next(new BadRequestError("The id string is in an invalid format"));
-//       } else {
-//         next(err);
-//       }
-//     });
-
 module.exports = { getCurrentUser, createUser, updateProfile, login };

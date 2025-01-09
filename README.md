@@ -1,6 +1,6 @@
 **WTWR Back-End Server**
 
-domain name: wtwr1000.jumpingcrab.com
+domain name: wtwr1000.jumpingcrab.com www.wtwr1000.jumpingcrab.com api.wtwr1000.jumpingcrab.com
 
 This project sets up the back-end server for the WTWR application. It is built using the following technologies:
 
