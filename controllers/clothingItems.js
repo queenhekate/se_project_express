@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const ClothingItem = require("../models/clothingItem");
 const { okCode, createdCode } = require("../utils/errors");
 const BadRequestError = require("../errors/bad-request-error");
-const UnauthorizedError = require("../errors/unauthorized-error");
+const ForbiddenError = require("../errors/forbidden-error");
 const NotFoundError = require("../errors/not-found-err");
 
 const createItem = (req, res, next) => {
@@ -40,7 +40,7 @@ const deleteItem = (req, res, next) => {
     .orFail()
     .then((item) => {
       if (String(item.owner) !== req.user._id) {
-        throw new UnauthorizedError("delete item forbidden");
+        throw new ForbiddenError("delete item forbidden");
       }
       return item
         .deleteOne()

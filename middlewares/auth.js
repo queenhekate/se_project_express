@@ -1,13 +1,13 @@
 const jwt = require("jsonwebtoken");
 
 const { JWT_SECRET } = require("../utils/config");
-const BadRequestError = require("../errors/bad-request-error");
+const UnauthorizedError = require("../errors/unauthorized-error");
 
 const auth = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith("Bearer")) {
-    throw new BadRequestError("Authorization token required");
+    throw new UnauthorizedError("Authorization token required");
   }
 
   const token = req.headers.authorization.replace("Bearer ", "");
@@ -18,13 +18,13 @@ const auth = (req, res, next) => {
     return next();
   } catch (error) {
     if (error.name === "JsonWebTokenError") {
-      throw new BadRequestError("Authorization token required");
+      throw new UnauthorizedError("Authorization token required");
     }
     if (error.name === "TokenExpiredError") {
-      throw new BadRequestError("Authorization token expired");
+      throw new UnauthorizedError("Authorization token expired");
     }
     console.error("Token verification failed:", error.message);
-    throw new BadRequestError("Invalid token");
+    throw new UnauthorizedError("Invalid token");
   }
 };
 

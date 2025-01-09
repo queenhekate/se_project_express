@@ -7,6 +7,10 @@ const { requestLogger, errorLogger } = require("./middlewares/logger");
 const mainRouter = require("./routes/index");
 const { login, createUser } = require("./controllers/users");
 const errorHandler = require("./middlewares/error-handler");
+const {
+  validateUserInfo,
+  authenticateUser,
+} = require("./middlewares/validation");
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -28,25 +32,10 @@ app.get("/crash-test", () => {
     throw new Error("Server will crash now");
   }, 0);
 });
-app.post("/signin", login);
-app.post("/signup", createUser);
 app.use(requestLogger);
+app.post("/signin", authenticateUser, login);
+app.post("/signup", validateUserInfo, createUser);
 app.use("/", mainRouter);
-
-app.use((err, req, res, next) => {
-  console.error(err);
-  return res.status(err.statusCode).send({ message: err.message });
-});
-
-app.use((err, req, res, next) => {
-  console.error(err);
-  // if an error has no status, set it to 500
-  const { statusCode = 500, message } = err;
-  res.status(statusCode).send({
-    // check the status and display a message based on it
-    message: statusCode === 500 ? "An error occurred on the server" : message,
-  });
-});
 
 app.use(errorLogger);
 
