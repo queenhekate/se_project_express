@@ -73,11 +73,9 @@ const createUser = (req, res, next) => {
         name,
         avatar,
       }).then((user) => {
-        const {
-          password: UserPassword, // eslint-disable-line
-          ...userWithoutPassword
-        } = user.toObject();
-        return res.status(201).send(userWithoutPassword);
+        const userCopy = user.toObject();
+        delete userCopy.password;
+        return res.status(201).send(userCopy);
       })
     )
     .catch((err) => {
